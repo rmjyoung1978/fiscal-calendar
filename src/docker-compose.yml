@@ -1,0 +1,17 @@
+version: '3'
+services:
+  dotnet:
+    image: artifactory.jfrog.iress.online/iress-docker/build-tools/iress-dotnet-builder:3.1
+    env_file: .env   
+    environment:
+      AWS_SHARED_CREDENTIALS_FILE: /root/.aws/credentials 
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  utils:
+    image: iress-docker.artifactory-uk.devel.iress.com.au/build-tools/iress-build-tools-utils:1.0
+    working_dir: /app
+    volumes:
+      - .:/app

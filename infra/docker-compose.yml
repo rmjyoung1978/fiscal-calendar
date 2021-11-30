@@ -1,0 +1,26 @@
+---
+  version: '3.2'
+  services:    
+    terraform:
+      image: ${ARTIFACTORY_HOSTNAME}/iress-docker/build-tools/iress-terraform-as-root:1.0.4
+      env_file: .env
+      environment:
+        AWS_SHARED_CREDENTIALS_FILE: /root/.aws/credentials
+      working_dir: /app
+      volumes:
+        - .:/app:rw
+        - ~/.aws:/root/.aws
+  
+    authenicate:
+      image: ${ARTIFACTORY_HOSTNAME}/iress-docker/build-tools/iress-aws-access:2.3.1
+      environment:
+        AWS_ACCOUNT_ID:
+        AWS_ASSUME_ROLE_ARN: arn:aws:iam::800371615020:role/DevDevOpsTechnet
+        OKTA_AWS_ROLE_TO_ASSUME: arn:aws:iam::983260188031:role/base-DevDevOpsTechnet-OktaRole
+        AWS_DEFAULT_REGION: eu-west-2
+        AWS_SHARED_CREDENTIALS_FILE: /app/.aws/credentials
+        AWS_CONFIG_FILE: /app/.aws/config
+        PROFILE: technet
+      working_dir: /app
+      volumes:
+        - ~:/app

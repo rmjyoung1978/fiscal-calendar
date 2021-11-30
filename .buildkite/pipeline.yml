@@ -1,0 +1,41 @@
+name: "Fiscal Calendar Pipeline"
+env:
+  REGION: "uk"
+  ARTIFACTORY_REGION: prod
+  IS_BUILDKITE: ${BUILDKITE}
+  BUILD_NUMBER: ${BUILDKITE_BUILD_NUMBER}
+  GIT_PULL_REQUEST: ${BUILDKITE_PULL_REQUEST}
+  PULL_REQUEST_BASE_BRANCH: ${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
+  GIT_COMMIT: ${BUILDKITE_COMMIT}
+  GIT_BRANCH: ${BUILDKITE_BRANCH} 
+  EXTERNAL_CREDENTIALS: artifactory
+
+steps:
+  - label: ":flag-gb: C# Build Upload :dotnet: :aws-lambda:"
+    key: "build"
+    command: .buildkite/scripts/csharp-build-upload.sh
+    agents:
+      queue: build.linux
+
+  - label: ":gb: Terraform Validate :terraform:"
+    key: "terraform-validate"
+    command: .buildkite/scripts/validate-terraform.sh
+    depends_on:
+      - "build"
+    env:
+      ENV: staging
+    agents:
+      queue: wealth-staging-uk.linux
+
+  - wait
+
+### Staging
+  - label: ":gb: Staging Plan & Apply :terraform:"
+    depends_on:
+      - "terraform-validate"
+    command: .buildkite/scripts/deploy-terraform.sh
+    env:
+      ENV: staging
+    branches: "main"
+    agents:
+      queue: wealth-staging-uk.linux

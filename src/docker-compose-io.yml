@@ -1,0 +1,8 @@
+---
+version: '3.2'
+services:
+  alpine:
+    image: artifactory.jfrog.iress.online/iress-docker/alpine
+    working_dir: /app    
+    volumes:
+      - .:/app
